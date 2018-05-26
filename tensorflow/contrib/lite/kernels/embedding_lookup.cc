@@ -28,7 +28,9 @@ limitations under the License.
 //   When indices are out of bound, the ops will not succeed.
 //
 
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 #include <cassert>
 #include <cmath>
 #include <cstdio>

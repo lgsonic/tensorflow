@@ -134,6 +134,7 @@ BuiltinOpResolver::BuiltinOpResolver() {
   AddBuiltin(BuiltinOperator_CAST, Register_CAST());
   AddBuiltin(BuiltinOperator_DEQUANTIZE, Register_DEQUANTIZE());
   AddBuiltin(BuiltinOperator_PRELU, Register_PRELU());
+#ifndef _WIN32
   AddBuiltin(BuiltinOperator_MAXIMUM, Register_MAXIMUM());
 
   // TODO(andrewharp, ahentz): Move these somewhere more appropriate so that
@@ -141,6 +142,7 @@ BuiltinOpResolver::BuiltinOpResolver() {
   AddCustom("Mfcc", tflite::ops::custom::Register_MFCC());
   AddCustom("AudioSpectrogram",
             tflite::ops::custom::Register_AUDIO_SPECTROGRAM());
+#endif
 }
 
 TfLiteRegistration* BuiltinOpResolver::FindOp(

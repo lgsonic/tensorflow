@@ -25,6 +25,7 @@ class ANeuralNetworsModel;
 
 namespace tflite {
 
+#ifndef _WIN32
 class NNAPIAllocation : public MMAPAllocation {
  public:
   NNAPIAllocation(const char* filename, ErrorReporter* error_reporter);
@@ -43,10 +44,11 @@ class NNAPIAllocation : public MMAPAllocation {
  private:
   mutable ANeuralNetworksMemory* handle_ = nullptr;
 };
+#endif
 
 class NNAPIDelegate {
  public:
-  ~NNAPIDelegate();
+	 ~NNAPIDelegate() {}
 
   // Convert a tflite graph to NNAPI
   TfLiteStatus BuildGraph(Interpreter* interpreter);

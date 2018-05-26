@@ -15,7 +15,9 @@ limitations under the License.
 #ifndef NN_API_SHIM_H0
 #define NN_API_SHIM_H0
 
+#ifndef _WIN32
 #include <dlfcn.h>
+#endif
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,32 +36,46 @@ limitations under the License.
 inline void* loadLibrary(const char* name) {
   // TODO: change RTLD_LOCAL? Assumes there can be multiple instances of nn
   // api RT
+#ifndef _WIN32
   void* handle = dlopen(name, RTLD_LAZY | RTLD_LOCAL);
   if (handle == nullptr) {
     NNAPI_LOG("nnapi error: unable to open library %s", name);
   }
   return handle;
+#else
+  return nullptr;
+#endif
 }
 
 inline void* getLibraryHandle() {
+#ifndef _WIN32
   static void* handle = loadLibrary("libneuralnetworks.so");
   return handle;
+#else
+  return nullptr;
+#endif
 }
 
 inline void* loadFunction(const char* name) {
   void* fn = nullptr;
+#ifndef _WIN32
   if (getLibraryHandle() != nullptr) {
     fn = dlsym(getLibraryHandle(), name);
   }
   if (fn == nullptr) {
     NNAPI_LOG("nnapi error: unable to open function %s", name);
   }
+#endif
   return fn;
 }
 
 inline bool NNAPIExists() {
+#ifndef _WIN32
   static bool nnapi_is_available = getLibraryHandle();
   return nnapi_is_available;
+#else
+  return false;
+#endif
 }
 
 // nn api types

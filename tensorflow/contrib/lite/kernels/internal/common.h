@@ -115,4 +115,17 @@ inline int32 MultiplyByQuantizedMultiplier(int32 x, int32 quantized_multiplier,
 
 }  // namespace tflite
 
+#ifdef _WIN32
+inline int __builtin_clz(unsigned int type)
+{
+    int num = 0;
+    type |= 1; // prevent type is 0, result infinite loop. when type is 0, result is 31
+    while (!(type & 0x80000000)) { // judge msb.
+        num += 1;
+        type <<= 1;
+    }
+    return num;
+}
+#endif
+
 #endif  // TENSORFLOW_CONTRIB_LITE_KERNELS_INTERNAL_COMMON_H_

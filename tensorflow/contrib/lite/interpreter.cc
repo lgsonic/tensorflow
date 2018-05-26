@@ -511,6 +511,7 @@ TfLiteStatus Interpreter::Invoke() {
   }
 
   TfLiteStatus status = kTfLiteOk;
+#ifndef _WIN32
   if (nnapi_delegate_) {
     if (next_execution_plan_index_to_prepare_ == execution_plan_.size()) {
       TF_LITE_ENSURE_OK(&context_, nnapi_delegate_->Invoke(this));
@@ -524,7 +525,7 @@ TfLiteStatus Interpreter::Invoke() {
       return kTfLiteError;
     }
   }
-
+#endif
   // Invocations are always done in node order.
   // Note that calling Invoke repeatedly will cause the original memory plan to
   // be reused, unless either ResizeInputTensor() or AllocateTensors() has been
@@ -753,12 +754,14 @@ void Interpreter::UseNNAPI(bool enable) {
   // TODO(aselle): This is a workaround for finding if NNAPI exists.
   // We also need to make sure getLibraryHandle() is renamed to be NNAPI
   // prefixed.
+#ifndef _WIN32
   if (!NNAPIExists()) enable = false;
   if (!enable) {
     nnapi_delegate_.reset();
   } else if (!nnapi_delegate_) {
     nnapi_delegate_.reset(new NNAPIDelegate);
   }
+#endif
 }
 
 void Interpreter::SetNumThreads(int num_threads) {

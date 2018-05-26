@@ -51,7 +51,7 @@ void resize(T* out, uint8_t* in, int image_height, int image_width,
   interpreter->SetOutputs({2});
 
   // set parameters of tensors
-  TfLiteQuantizationParams quant;
+  TfLiteQuantizationParams quant = { 0 };
   interpreter->SetTensorParametersReadWrite(
       0, kTfLiteFloat32, "input",
       {1, image_height, image_width, image_channels}, quant);
@@ -89,11 +89,19 @@ void resize(T* out, uint8_t* in, int image_height, int image_width,
   auto output_number_of_pixels =
       wanted_height * wanted_height * wanted_channels;
 
-  for (int i = 0; i < output_number_of_pixels; i++) {
-    if (s->input_floating)
-      out[i] = (output[i] - s->input_mean) / s->input_std;
-    else
-      out[i] = (uint8_t)output[i];
+  int output_offset = 0;
+  for (int i = 0; i < output_number_of_pixels; i += wanted_channels) {
+	int j = 0;
+    for (; j < wanted_channels; j++) {
+      float value = 0;
+      if (j < image_channels)
+        value = output[output_offset++];
+      if (s->input_floating)
+        out[i + j] = (value- s->input_mean) / s->input_std;
+      else
+        out[i + j] = (uint8_t)value;
+    }
+    while(j++ < image_channels - 1) output_offset++;
   }
 }
 

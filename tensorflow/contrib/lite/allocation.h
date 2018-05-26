@@ -43,6 +43,7 @@ class Allocation {
   ErrorReporter* error_reporter_;
 };
 
+#ifndef _WIN32
 class MMAPAllocation : public Allocation {
  public:
   MMAPAllocation(const char* filename, ErrorReporter* error_reporter);
@@ -57,6 +58,7 @@ class MMAPAllocation : public Allocation {
   const void* mmapped_buffer_;
   size_t buffer_size_bytes_ = 0;
 };
+#endif
 
 class FileCopyAllocation : public Allocation {
  public:

@@ -16,10 +16,12 @@ limitations under the License.
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#ifndef _WIN32
+#include <sys/mman.h>
 #include <unistd.h>
+#endif
 
 #include "tensorflow/contrib/lite/allocation.h"
 #include "tensorflow/contrib/lite/builtin_op_data.h"
@@ -72,12 +74,15 @@ std::unique_ptr<Allocation> GetAllocationFromFile(const char* filename,
                                                   ErrorReporter* error_reporter,
                                                   bool use_nnapi) {
   std::unique_ptr<Allocation> allocation;
+#ifndef _WIN32
   if (mmap_file) {
     if (use_nnapi && NNAPIExists())
       allocation.reset(new NNAPIAllocation(filename, error_reporter));
     else
       allocation.reset(new MMAPAllocation(filename, error_reporter));
-  } else {
+  } else
+#endif
+  {
     allocation.reset(new FileCopyAllocation(filename, error_reporter));
   }
   return allocation;

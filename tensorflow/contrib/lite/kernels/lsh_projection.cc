@@ -50,7 +50,9 @@ limitations under the License.
 //     Output.Dim == { Tensor[0].Dim[0] * Tensor[0].Dim[1] }
 //     A flattened tensor represents projected bit vectors.
 
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 #include <cassert>
 #include <cmath>
 #include <cstdio>

@@ -24,12 +24,16 @@ limitations under the License.
 #include <unordered_set>
 #include <vector>
 
+#ifndef _WIN32
 #include <fcntl.h>      // NOLINT(build/include_order)
 #include <getopt.h>     // NOLINT(build/include_order)
 #include <sys/time.h>   // NOLINT(build/include_order)
 #include <sys/types.h>  // NOLINT(build/include_order)
 #include <sys/uio.h>    // NOLINT(build/include_order)
 #include <unistd.h>     // NOLINT(build/include_order)
+#else
+#include "getopt.h"
+#endif
 
 #include "tensorflow/contrib/lite/kernels/register.h"
 #include "tensorflow/contrib/lite/model.h"
@@ -40,6 +44,32 @@ limitations under the License.
 #include "tensorflow/contrib/lite/examples/label_image/get_top_n.h"
 
 #define LOG(x) std::cerr
+
+#ifdef _WIN32
+#include <WinSock2.h>
+namespace {
+	int gettimeofday(struct timeval * tp, struct timezone * tzp)
+	{
+		// Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's
+		// This magic number is the number of 100 nanosecond intervals since January 1, 1601 (UTC)
+		// until 00:00:00 January 1, 1970 
+		static const uint64_t EPOCH = ((uint64_t)116444736000000000ULL);
+
+		SYSTEMTIME  system_time;
+		FILETIME    file_time;
+		uint64_t    time;
+
+		GetSystemTime(&system_time);
+		SystemTimeToFileTime(&system_time, &file_time);
+		time = ((uint64_t)file_time.dwLowDateTime);
+		time += ((uint64_t)file_time.dwHighDateTime) << 32;
+
+		tp->tv_sec = (long)((time - EPOCH) / 10000000L);
+		tp->tv_usec = (long)(system_time.wMilliseconds * 1000);
+		return 0;
+	}
+}
+#endif
 
 namespace tflite {
 namespace label_image {
@@ -296,6 +326,7 @@ int Main(int argc, char** argv) {
         exit(-1);
     }
   }
+
   RunInference(&s);
   return 0;
 }

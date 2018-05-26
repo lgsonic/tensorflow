@@ -18,6 +18,9 @@ limitations under the License.
 #include <cstring>
 #include <limits>
 #include <vector>
+#ifdef _WIN32
+#include <algorithm>
+#endif
 
 namespace {
 

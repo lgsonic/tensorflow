@@ -14,10 +14,12 @@ limitations under the License.
 ==============================================================================*/
 
 #include <fcntl.h>
-#include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#ifndef _WIN32
+#include <sys/mman.h>
 #include <unistd.h>
+#endif
 #include <cassert>
 #include <cstdarg>
 #include <cstdint>
@@ -30,6 +32,7 @@ limitations under the License.
 
 namespace tflite {
 
+#ifndef _WIN32
 MMAPAllocation::MMAPAllocation(const char* filename,
                                ErrorReporter* error_reporter)
     : Allocation(error_reporter), mmapped_buffer_(MAP_FAILED) {
@@ -61,6 +64,7 @@ const void* MMAPAllocation::base() const { return mmapped_buffer_; }
 size_t MMAPAllocation::bytes() const { return buffer_size_bytes_; }
 
 bool MMAPAllocation::valid() const { return mmapped_buffer_ != MAP_FAILED; }
+#endif
 
 FileCopyAllocation::FileCopyAllocation(const char* filename,
                                        ErrorReporter* error_reporter)
